@@ -16,6 +16,7 @@ const welcomeScreen = document.getElementById('welcomeScreen');
 const chatContainer = document.getElementById('chatContainer');
 const themeToggle = document.getElementById('themeToggle');
 const scrollButton = document.getElementById('scrollButton');
+const appLogo = document.querySelector('.logo');
 
 // 主题切换
 function initTheme() {
@@ -53,6 +54,25 @@ function checkInputState() {
     const hasText = messageInput.value.trim().length > 0;
     const hasImages = uploadedImages.length > 0;
     sendButton.disabled = !hasText && !hasImages || isProcessing;
+}
+
+// 重置回到主页
+function resetToHome() {
+    document.body.classList.remove('chat-active');
+    chatContainer.classList.remove('active');
+    if (welcomeScreen) welcomeScreen.classList.remove('hidden');
+
+    chatHistory = [];
+    uploadedImages = [];
+    isProcessing = false;
+
+    messagesContainer.innerHTML = '';
+    previewImages.innerHTML = '';
+    messageInput.value = '';
+    fileInput.value = '';
+
+    adjustTextareaHeight();
+    checkInputState();
 }
 
 // 文件上传
@@ -135,10 +155,8 @@ async function sendMessage() {
         }, 300);
     }
 
-    // 1. 添加用户消息
     addMessage('user', text, uploadedImages);
 
-    // 重置输入
     messageInput.value = '';
     messageInput.style.height = 'auto';
     const currentImages = [...uploadedImages];
@@ -147,9 +165,7 @@ async function sendMessage() {
     isProcessing = true;
     checkInputState();
 
-    // 2. 添加助手消息占位符
     const assistantMessageId = addMessage('assistant', '', [], true);
-    // 思考 ID 加上随机数
     const thinkingProcessId = `thinking-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     try {
@@ -158,7 +174,7 @@ async function sendMessage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 message: text || '请分析这些图片',
-                history: chatHistory,
+                history: chatHistory, // 发送当前历史
                 images: currentImages
             })
         });
@@ -183,7 +199,10 @@ async function sendMessage() {
                 }
             }
         }
-        chatHistory.push({ role: 'user', content: text });
+
+        // 🔴 删除：不要在这里手动 push chatHistory，等待后端 update_state
+        // chatHistory.push({ role: 'user', content: text });
+
     } catch (error) {
         console.error('发送失败:', error);
         updateMessage(assistantMessageId, '抱歉，发生了错误。请重试。');
@@ -218,7 +237,14 @@ function handleStreamData(data, messageId, thinkingId) {
 
         case 'result':
             updateMessage(messageId, content);
-            chatHistory.push({ role: 'assistant', content: content });
+            // 🔴 删除：不要在这里手动 push chatHistory
+            // chatHistory.push({ role: 'assistant', content: content });
+            break;
+
+        // 🟢 新增：接收后端同步的完整历史记录（包含图片和正确顺序）
+        case 'update_state':
+            chatHistory = content;
+            console.log("✅ 历史记录已同步，长度:", chatHistory.length);
             break;
 
         case 'error':
@@ -229,7 +255,6 @@ function handleStreamData(data, messageId, thinkingId) {
 
 function addMessage(role, text, images = [], isLoading = false) {
     const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
     messageDiv.id = messageId;
@@ -264,8 +289,6 @@ function updateMessage(messageId, text) {
         const bubble = messageDiv.querySelector('.message-bubble');
         const indicator = bubble.querySelector('.typing-indicator');
         if (indicator) indicator.remove();
-
-        // 支持基本的换行显示
         bubble.innerText = text || '';
         scrollToBottom();
     }
@@ -274,11 +297,12 @@ function updateMessage(messageId, text) {
 function addThinkingProcess(messageId, thinkingId) {
     const messageDiv = document.getElementById(messageId);
     if (!messageDiv) return;
-    const content = messageDiv.querySelector('.message-content');
 
     if (document.getElementById(thinkingId)) return;
 
+    const content = messageDiv.querySelector('.message-content');
     const thinkingDiv = document.createElement('div');
+    // 默认关闭 (不加 open 类)
     thinkingDiv.className = 'thinking-process';
     thinkingDiv.id = thinkingId;
     thinkingDiv.innerHTML = `
@@ -318,7 +342,6 @@ function appendThinkingText(thinkingId, text) {
         }
         const lastStep = steps[steps.length - 1];
         const textSpan = lastStep.querySelector('.step-text');
-
         if (textSpan) {
             textSpan.innerText += text;
         } else {
@@ -355,6 +378,13 @@ fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) { h
 themeToggle.addEventListener('click', toggleTheme);
 scrollButton.addEventListener('click', scrollToBottom);
 window.addEventListener('scroll', handleScroll);
+
+if (appLogo) {
+    appLogo.addEventListener('click', (e) => {
+        e.preventDefault();
+        resetToHome();
+    });
+}
 
 document.body.addEventListener('dragover', (e) => { e.preventDefault(); });
 document.body.addEventListener('drop', (e) => {
