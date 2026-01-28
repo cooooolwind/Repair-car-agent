@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse,RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
@@ -11,6 +11,10 @@ import asyncio
 from agent_backend import run_agent, convert_pdf_to_image
 
 app = FastAPI(title="CarRepair Agent API")
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/static/index.html")
 
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")
