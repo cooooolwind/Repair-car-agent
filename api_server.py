@@ -1,6 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-# 🟢 修改：增加导入 RedirectResponse
 from fastapi.responses import StreamingResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -13,7 +12,6 @@ from agent_backend import run_agent, convert_pdf_to_image
 
 app = FastAPI(title="CarRepair Agent API")
 
-# 🟢 新增：访问根路径时，自动跳转到首页
 @app.get("/")
 async def root():
     return RedirectResponse(url="/static/index.html")
