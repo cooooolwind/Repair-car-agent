@@ -103,9 +103,9 @@
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
-        .message.user .message-avatar { background: var(--primary); color: white; }
-        .message.assistant .message-avatar { background: var(--bg-tertiary); color: var(--text-primary); }
+        /*.message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }*/
+        /*.message.user .message-avatar { background: var(--primary); color: white; }*/
+        /*.message.assistant .message-avatar { background: var(--bg-tertiary); color: var(--text-primary); }*/
 
         .message-content { flex: 1; max-width: 80%; display: flex; flex-direction: column; }
 
@@ -180,11 +180,11 @@
         .scroll-button { position: fixed; bottom: 120px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 40; }
         .scroll-button.visible { display: flex; }
 
-        @media (max-width: 768px) {
-            .input-container { width: calc(100% - 24px); }
-            body:not(.chat-active) .input-container { width: calc(100% - 32px); }
-            .message { gap: 8px; }
-            .message-avatar { width: 32px; height: 32px; font-size: 16px; }
+        /*@media (max-width: 768px) {*/
+        /*    .input-container { width: calc(100% - 24px); }*/
+        /*    body:not(.chat-active) .input-container { width: calc(100% - 32px); }*/
+        /*    .message { gap: 8px; }*/
+        /*    .message-avatar { width: 32px; height: 32px; font-size: 16px; }*/
         }
     </style>
 </head>

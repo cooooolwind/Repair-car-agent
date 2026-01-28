@@ -219,7 +219,7 @@ function handleStreamData(data, messageId, thinkingId) {
     switch (type) {
         case 'thought_start':
             if (!hasThinkingProcessElement(thinkingId)) addThinkingProcess(messageId, thinkingId);
-            appendThinkingStep(thinkingId, '🧠 思考', '');
+            appendThinkingStep(thinkingId, '思考', '');
             break;
 
         case 'thought_stream':
@@ -228,11 +228,11 @@ function handleStreamData(data, messageId, thinkingId) {
             break;
 
         case 'tool_start':
-            appendThinkingStep(thinkingId, '🛠️ 调用工具', content);
+            appendThinkingStep(thinkingId, '调用工具', content);
             break;
 
         case 'observation':
-            appendThinkingStep(thinkingId, '👀 观察结果', content);
+            appendThinkingStep(thinkingId, '观察结果', content);
             break;
 
         case 'result':
@@ -272,7 +272,7 @@ function addMessage(role, text, images = [], isLoading = false) {
 
     const loadingHTML = isLoading ? '<div class="typing-indicator"><span></span><span></span><span></span></div>' : '';
     messageDiv.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
+<!--        <div class="message-avatar">${avatar}</div>-->
         <div class="message-content">
             ${imagesHTML}
             <div class="message-bubble">${text}${loadingHTML}</div>
@@ -307,7 +307,7 @@ function addThinkingProcess(messageId, thinkingId) {
     thinkingDiv.id = thinkingId;
     thinkingDiv.innerHTML = `
         <div class="thinking-header" onclick="toggleThinking('${thinkingId}')">
-            <span>🧠 思考过程</span>
+            <span>思考过程</span>
             <svg class="thinking-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="thinking-content" id="${thinkingId}-content"></div>
@@ -338,7 +338,7 @@ function appendThinkingText(thinkingId, text) {
     if (thinkingContent) {
         const steps = thinkingContent.getElementsByClassName('thinking-step');
         if (steps.length === 0) {
-            appendThinkingStep(thinkingId, '🧠 思考', '');
+            appendThinkingStep(thinkingId, '思考', '');
         }
         const lastStep = steps[steps.length - 1];
         const textSpan = lastStep.querySelector('.step-text');
