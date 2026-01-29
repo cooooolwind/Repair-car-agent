@@ -18,7 +18,11 @@ async def root():
 
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")
+# 2. 新增：挂载上传文件夹，允许前端访问 /uploads/xxx.jpg
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+# 3. 新增：挂载 PDF 转换图片文件夹，允许前端访问 /image/xxx.jpg
+app.mount("/image", StaticFiles(directory="image"), name="image")
 # CORS 配置
 app.add_middleware(
     CORSMiddleware,
