@@ -129,8 +129,25 @@
             text-align: left; /* 保持文字左对齐，虽然气泡在右边 */
         }
 
-        .message-images { margin-bottom: 8px; }
-        .message-image { max-width: 100%; border-radius: 8px; margin-bottom: 8px; }
+        /* 图片容器：让多张图片横向排列，而不是垂直堆叠 */
+        .message-images {
+            margin-bottom: 8px;
+            display: flex;           /* 开启 Flex 布局 */
+            flex-wrap: wrap;         /* 允许换行 */
+            gap: 8px;               /* 图片之间的间距 */
+        }
+
+        /* 单张图片样式：限制最大宽高 */
+        .message-image {
+            max-width: 200px;       /* 🔴 核心修改：限制最大宽度为 200px (可按需调整) */
+            max-height: 200px;      /* 🔴 核心修改：限制最大高度 */
+            width: auto;            /* 保持原始比例 */
+            height: auto;           /* 保持原始比例 */
+            border-radius: 8px;
+            object-fit: cover;      /* 保持填充效果，看起来更整齐 (或者用 contain) */
+            border: 1px solid var(--border-color); /* 可选：加个边框更好看 */
+            cursor: pointer;        /* 鼠标放上去显示手型 */
+        }
 
         /* Thinking Process */
         .thinking-process { margin-bottom: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; width: 100%; }
