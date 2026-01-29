@@ -6,6 +6,9 @@
 .python-version
 __pycache__
 
+# nodejs packages
+node_modules/
+
 # misc files
 .DS_Store
 
