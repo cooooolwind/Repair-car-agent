@@ -11,6 +11,7 @@ node_modules/
 
 # misc files
 .DS_Store
+*.log
 
 # package manager
 uv.lock
