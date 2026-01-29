@@ -1,9 +1,10 @@
 import re
+import sys
 from openai import OpenAI
 import os
 import base64
 from pdf2image import convert_from_path
-
+from robot_mobile_platform.ax_robot import goto_poi
 # --- 配置 ---
 API_KEY = "sk-5eb60c1091ba459aa9246ea714db371c"
 BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -14,6 +15,7 @@ AGENT_SYSTEM_PROMPT = """
 
 # 可用工具:
 - `get_point()`: 模拟视觉系统，返回螺丝有几个。
+- `goto_poi(name: str)`: 移动维修小车到指定的对应name地点，每一个地点上有一个螺丝，参数name可以是2
 - `detect()`: 定位螺丝的位置。
 - `Arm_move(type: str)`: 移动机械手，type=‘1’表示向上拧紧，type=‘0’表示向下拧松。
 
@@ -32,8 +34,7 @@ Action: 你决定采取的行动，必须是以下格式之一:
 
 # --- 工具函数 ---
 def get_point() -> str:
-    return "系统定位反馈有一个螺丝。"
-
+    return "系统定位反馈有两个螺丝，螺丝位置在2"
 
 def detect() -> str:
     return "系统定位反馈：在坐标 (X:200, Y:150) 处发现待处理螺丝孔位。"
@@ -51,6 +52,7 @@ available_tools = {
     "get_point": get_point,
     "detect":detect,
     "Arm_move": Arm_move,
+    "goto_poi":goto_poi,
 }
 
 
