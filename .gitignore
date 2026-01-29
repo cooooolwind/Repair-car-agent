@@ -1,0 +1,21 @@
+# IDE files
+.idea
+
+# Python files
+.venv
+.python-version
+__pycache__
+
+# misc files
+.DS_Store
+
+# package manager
+uv.lock
+pyproject.toml
+
+# keep struct files
+/image/*
+!/image/.gitkeep
+
+/uploads/*
+!/uploads/.gitkeep
