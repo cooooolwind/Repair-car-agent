@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CarRepair Agent - 智能修车助手</title>
+    <title>智能修车助手</title>
     <link rel="icon" href="image/favicon.ico">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -95,59 +95,32 @@
         .chat-container.active { display: block; }
         .messages { display: flex; flex-direction: column; gap: 24px; }
 
-        /* 🟢 核心修复：消息布局 */
         .message { display: flex; gap: 12px; animation: slideIn 0.3s ease-out; width: 100%; }
-
-        /* 用户消息：反转方向，头像在右 */
         .message.user { flex-direction: row-reverse; }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /*.message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }*/
-        /*.message.user .message-avatar { background: var(--primary); color: white; }*/
-        /*.message.assistant .message-avatar { background: var(--bg-tertiary); color: var(--text-primary); }*/
-
         .message-content { flex: 1; max-width: 80%; display: flex; flex-direction: column; }
-
-        /* 对齐修复 */
         .message.user .message-content { align-items: flex-end; }
         .message.assistant .message-content { align-items: flex-start; }
 
-        /* 气泡样式修复 */
         .message-bubble { padding: 12px 16px; border-radius: 12px; line-height: 1.6; position: relative; word-break: break-word; }
 
         .message.assistant .message-bubble {
             background: var(--message-assistant-bg);
             color: var(--message-assistant-text);
-            border-top-left-radius: 4px; /* 尖角在左上 */
+            border-top-left-radius: 4px;
         }
 
         .message.user .message-bubble {
             background: var(--message-user-bg);
             color: var(--message-user-text);
-            border-top-right-radius: 4px; /* 尖角在右上 */
-            text-align: left; /* 保持文字左对齐，虽然气泡在右边 */
+            border-top-right-radius: 4px;
+            text-align: left;
         }
 
-        /* 图片容器：让多张图片横向排列，而不是垂直堆叠 */
-        .message-images {
-            margin-bottom: 8px;
-            display: flex;           /* 开启 Flex 布局 */
-            flex-wrap: wrap;         /* 允许换行 */
-            gap: 8px;               /* 图片之间的间距 */
-        }
-
-        /* 单张图片样式：限制最大宽高 */
-        .message-image {
-            max-width: 200px;       /* 🔴 核心修改：限制最大宽度为 200px (可按需调整) */
-            max-height: 200px;      /* 🔴 核心修改：限制最大高度 */
-            width: auto;            /* 保持原始比例 */
-            height: auto;           /* 保持原始比例 */
-            border-radius: 8px;
-            object-fit: cover;      /* 保持填充效果，看起来更整齐 (或者用 contain) */
-            border: 1px solid var(--border-color); /* 可选：加个边框更好看 */
-            cursor: pointer;        /* 鼠标放上去显示手型 */
-        }
+        .message-images { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .message-image { max-width: 200px; max-height: 200px; width: auto; height: auto; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color); cursor: pointer; }
 
         /* Thinking Process */
         .thinking-process { margin-bottom: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; width: 100%; }
@@ -187,6 +160,23 @@
         .send-button { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-secondary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .send-button:not(:disabled) { background: var(--primary); color: white; }
 
+        /* 🟢 新增：麦克风按钮样式 */
+        .mic-button {
+            width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
+            color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; margin-right: 4px;
+        }
+        .mic-button:hover { background: var(--bg-secondary); color: var(--primary); }
+        /* 录音时的动画 */
+        .mic-button.recording {
+            color: #ff4b4b; background: rgba(255, 75, 75, 0.1); animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 75, 75, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
+        }
+
         /* Typing Indicator */
         .typing-indicator { display: flex; gap: 4px; padding: 0 4px; }
         .typing-indicator span { width: 6px; height: 6px; background: currentColor; border-radius: 50%; animation: typing 1.4s infinite; opacity: 0.6; }
@@ -196,20 +186,13 @@
 
         .scroll-button { position: fixed; bottom: 120px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 40; }
         .scroll-button.visible { display: flex; }
-
-        /*@media (max-width: 768px) {*/
-        /*    .input-container { width: calc(100% - 24px); }*/
-        /*    body:not(.chat-active) .input-container { width: calc(100% - 32px); }*/
-        /*    .message { gap: 8px; }*/
-        /*    .message-avatar { width: 32px; height: 32px; font-size: 16px; }*/
-        }
     </style>
 </head>
 <body>
     <header class="header">
         <a href="#" class="logo">
-            <img src="image/logo_t.png" style="width: 44px; height: 44px;">
-            <span>CarRepair Agent</span>
+            <img src="image/logo.png" style="width: 142px; height: 33px;">
+<!--            <span>CarRepair Agent</span>-->
         </a>
         <div class="header-actions">
             <button class="theme-toggle" id="themeToggle"><svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
@@ -236,8 +219,18 @@
             </label>
             <div class="input-box">
                 <div class="preview-images" id="previewImages"></div>
-                <textarea class="input-textarea" id="messageInput" placeholder="给 CarRepair 发送消息" rows="1"></textarea>
+                <textarea class="input-textarea" id="messageInput" placeholder="给我发送消息" rows="1"></textarea>
             </div>
+
+            <button class="mic-button" id="micButton" title="点击开始/停止录音">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+
             <button class="send-button" id="sendButton" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
         </div>
     </div>

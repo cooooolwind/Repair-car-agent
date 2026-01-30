@@ -17,6 +17,8 @@ const chatContainer = document.getElementById('chatContainer');
 const themeToggle = document.getElementById('themeToggle');
 const scrollButton = document.getElementById('scrollButton');
 const appLogo = document.querySelector('.logo');
+// 🟢 新增：获取麦克风按钮
+const micButton = document.getElementById('micButton');
 
 // 主题切换
 function initTheme() {
@@ -174,7 +176,7 @@ async function sendMessage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 message: text || '请分析这些图片',
-                history: chatHistory, // 发送当前历史
+                history: chatHistory,
                 images: currentImages
             })
         });
@@ -199,9 +201,6 @@ async function sendMessage() {
                 }
             }
         }
-
-        // 🔴 删除：不要在这里手动 push chatHistory，等待后端 update_state
-        // chatHistory.push({ role: 'user', content: text });
 
     } catch (error) {
         console.error('发送失败:', error);
@@ -237,11 +236,8 @@ function handleStreamData(data, messageId, thinkingId) {
 
         case 'result':
             updateMessage(messageId, content);
-            // 🔴 删除：不要在这里手动 push chatHistory
-            // chatHistory.push({ role: 'assistant', content: content });
             break;
 
-        // 🟢 新增：接收后端同步的完整历史记录（包含图片和正确顺序）
         case 'update_state':
             chatHistory = content;
             console.log("✅ 历史记录已同步，长度:", chatHistory.length);
@@ -272,7 +268,6 @@ function addMessage(role, text, images = [], isLoading = false) {
 
     const loadingHTML = isLoading ? '<div class="typing-indicator"><span></span><span></span><span></span></div>' : '';
     messageDiv.innerHTML = `
-<!--        <div class="message-avatar">${avatar}</div>-->
         <div class="message-content">
             ${imagesHTML}
             <div class="message-bubble">${text}${loadingHTML}</div>
@@ -302,7 +297,6 @@ function addThinkingProcess(messageId, thinkingId) {
 
     const content = messageDiv.querySelector('.message-content');
     const thinkingDiv = document.createElement('div');
-    // 默认关闭 (不加 open 类)
     thinkingDiv.className = 'thinking-process';
     thinkingDiv.id = thinkingId;
     thinkingDiv.innerHTML = `
@@ -401,5 +395,80 @@ document.body.addEventListener('drop', (e) => {
     if (files.length > 0) handleFileUpload(files);
 });
 
+// ================= 🟢 语音识别模块 =================
+
+let recognition = null;
+let isRecording = false;
+
+function initSpeechRecognition() {
+    // 检查浏览器兼容性
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.lang = 'zh-CN'; // 设置为中文
+        recognition.continuous = false; // 设为 false 表示说完一句话自动停止
+        recognition.interimResults = true; // 显示实时结果
+
+        recognition.onstart = () => {
+            isRecording = true;
+            micButton.classList.add('recording');
+            messageInput.placeholder = "正在聆听...";
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            micButton.classList.remove('recording');
+            messageInput.placeholder = "给 CarRepair 发送消息";
+
+            // 更新输入状态（点亮发送按钮）
+            checkInputState();
+            adjustTextareaHeight();
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+
+            // 将识别到的文字填充到输入框
+            messageInput.value = transcript;
+            adjustTextareaHeight();
+            checkInputState(); // 实时检测字数，点亮按钮
+        };
+
+        recognition.onerror = (event) => {
+            console.error('语音识别错误:', event.error);
+            isRecording = false;
+            micButton.classList.remove('recording');
+            messageInput.placeholder = "语音识别出错，请重试";
+        };
+    } else {
+        if (micButton) micButton.style.display = 'none'; // 如果不支持，隐藏按钮
+        console.log("当前浏览器不支持 Web Speech API");
+    }
+}
+
+// 绑定点击事件
+if (micButton) {
+    initSpeechRecognition();
+
+    micButton.addEventListener('click', () => {
+        if (!recognition) {
+            alert("您的浏览器不支持语音识别功能，请使用 Chrome, Edge 或 Safari。");
+            return;
+        }
+
+        if (isRecording) {
+            recognition.stop(); // 再次点击停止
+        } else {
+            // 清空输入框并开始
+            messageInput.value = '';
+            recognition.start();
+        }
+    });
+}
+
+// 初始化
 initTheme();
 checkInputState();
