@@ -7,8 +7,8 @@ from scipy.spatial.transform import Rotation as R
 import sys                                                                                                                                                                                                                  
 import time
 
-sys.path.append('//home/robot/GRCNN')
-sys.path.append('//home/robot/GRCNN/real')
+# sys.path.append('//home/robot/GRCNN')
+# sys.path.append('//home/robot/GRCNN/real')
 from jaka_Rotate_yc import JAKA_Robot  # 确保路径正确
 
 # ------------------- 1. 初始化相机 + YOLO -------------------
@@ -90,12 +90,12 @@ def compute_xyz(u, v, depth_raw, intr, depth_scale):
 print("✅ 系统启动完成，进入自动拧螺丝模式（检测→执行→等待20s→重复）")
 model1 = YOLO("best.pt")
 model2 = YOLO("hole2.pt")
-# type = 1    ## 0 down 1 up
+type = 1    ## 0 down 1 up
 print("✅ YOLO 模型加载完成")
 try:
-    # time.sleep(20)
+    time.sleep(20)
     while True:
-        # type = (type+1)%2
+        type = (type+1)%2
         frames = pipeline.wait_for_frames()
         aligned = align.process(frames)
         depth_frame = aligned.get_depth_frame()
