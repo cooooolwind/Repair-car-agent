@@ -4,11 +4,7 @@ from openai import OpenAI
 import os
 import base64
 from pdf2image import convert_from_path
-from robot_mobile_platform.ax_robot import goto_poi
-
-from jaka_screw.real.robot_tools import Arm_move
-from jaka_screw.real.jaka_Rotate_yc import JAKA_Robot
-
+from func_caller import MockFuncCaller
 
 # --- 配置 ---
 API_KEY = "sk-5eb60c1091ba459aa9246ea714db371c"
@@ -35,19 +31,17 @@ Action: 你决定采取的行动，必须是以下格式之一:
 请开始吧！
 """
 
+func_caller = MockFuncCaller()
 
 # --- 工具函数 ---
 def get_point() -> str:
-    return "系统定位反馈有两个螺丝，螺丝位置在2和9"
+    return func_caller.get_point()
 
-# def Arm_move(type: str) -> str:
-#     val = str(type).strip()
-#     if val == "1":
-#         return "机械手状态：已向上移动并拧紧。"
-#     elif val == "0":
-#         return "机械手状态：已向下移动归位。"
-#     else:
-#         return f"错误：未知类型 {type}。"
+def goto_poi(name: str) -> str:
+    return func_caller.goto_poi(name)
+
+def Arm_move(type: str) -> str:
+    return func_caller.arm_move(type)
 
 available_tools = {
     "get_point": get_point,
