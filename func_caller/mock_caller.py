@@ -16,3 +16,6 @@ class MockFuncCaller(FuncCaller):
 
     def goto_poi(self, name: str) -> str:
         return json.dumps({"status": "success", "message": f"Mock: Arrived at {name}"}, ensure_ascii=False)
+    
+    def play_audio(self, url: str) -> str:
+        return json.dumps({"status": "success"}, ensure_ascii=False)

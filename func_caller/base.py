@@ -12,3 +12,7 @@ class FuncCaller(ABC):
     @abstractmethod
     def goto_poi(self, name: str) -> str:
         pass
+
+    @abstractmethod
+    def play_audio(self, url: str) -> str:
+        pass

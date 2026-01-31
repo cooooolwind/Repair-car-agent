@@ -23,3 +23,6 @@ pyproject.toml
 
 /uploads/*
 !/uploads/.gitkeep
+
+/audio/*
+!/audio/.gitkeep

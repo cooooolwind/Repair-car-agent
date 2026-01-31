@@ -18,11 +18,13 @@ async def root():
 
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")
-# 2. 新增：挂载上传文件夹，允许前端访问 /uploads/xxx.jpg
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
-# 3. 新增：挂载 PDF 转换图片文件夹，允许前端访问 /image/xxx.jpg
 app.mount("/image", StaticFiles(directory="image"), name="image")
+
+# 确保 audio 文件夹存在，并挂载
+os.makedirs("audio", exist_ok=True)
+app.mount("/audio", StaticFiles(directory="audio"), name="audio")
+
 # CORS 配置
 app.add_middleware(
     CORSMiddleware,
@@ -63,8 +65,8 @@ async def chat(request: ChatRequest):
 
     async def generate():
         try:
-            # 调用后端 agent
-            for chunk in run_agent(request.message, request.images, history):
+            # 🟢 修改：使用 async for 遍历异步生成器
+            async for chunk in run_agent(request.message, request.images, history):
                 # 将字典转换为 JSON 字符串
                 chunk_str = json.dumps(chunk, ensure_ascii=False)
                 yield f"data: {chunk_str}\n\n"
@@ -98,7 +100,8 @@ async def upload_file(file: UploadFile = File(...)):
 
         # 如果是 PDF，转换为图片
         if file.filename.lower().endswith('.pdf'):
-            image_paths = convert_pdf_to_image(file_path)
+            # 注意：convert_pdf_to_image 这里还是同步的，如果 PDF 很大，建议也用 await asyncio.to_thread
+            image_paths = await asyncio.to_thread(convert_pdf_to_image, file_path)
             return {
                 "success": True,
                 "file_path": file_path,
