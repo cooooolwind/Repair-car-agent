@@ -49,7 +49,8 @@ const audioUrl = process.argv[2];
       message: success ? "音频播放指令发送成功" : "音频播放指令发送失败",
       url: audioUrl
     }));
-    
+
+    process.exit(0);
   } catch (error) {
     console.log(JSON.stringify({ 
       ok: false, 

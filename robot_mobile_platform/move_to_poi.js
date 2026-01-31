@@ -85,6 +85,8 @@ if (!targetName) {
         yaw
       }
     }));
+
+    process.exit(0);
   } catch (e) {
     console.log(JSON.stringify({
       ok: false,
